@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Project-level false positives"
+paths = [
+  # detect-secrets stores hashed representations of findings — not real secrets
+  ".secrets.baseline",
+]
