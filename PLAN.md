@@ -10,7 +10,7 @@ A voting app: users create prompts with 2–4 options, others vote anonymously, 
 
 - [x] Phase 0 — Pre-commit secret scanning hook (detect-secrets)
 - [x] Phase 1 — Project scaffold (Vite + deps + netlify.toml + tsconfigs)
-- [ ] Phase 2 — Netlify Functions (backend API)
+- [x] Phase 2 — Netlify Functions (backend API)
 - [ ] Phase 3 — Frontend (components + routing)
 - [ ] Phase 4 — Deploy to Netlify
 
@@ -95,21 +95,14 @@ All files in `netlify/functions/`. Netlify maps them to `/.netlify/functions/<na
 | `cast-vote.ts` | POST | `{ pollId, optionId, voterFingerprint }` | Record vote; returns `already_voted` on duplicate |
 | `get-results.ts` | GET | `?pollId=<uuid>` | Vote counts + percentages per option |
 
-Each function initialises Supabase like this:
-
-```typescript
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-```
+Supabase client is initialised once in `netlify/functions/lib/supabase.ts` and imported by each function.
 
 **Test locally with:**
 ```bash
 netlify dev   # starts on port 8888; functions at /.netlify/functions/*
 ```
+
+**Files built:** ✅ `lib/supabase.ts` · ✅ `get-poll.ts` · ✅ `create-poll.ts` · ✅ `cast-vote.ts` · ✅ `get-results.ts`
 
 ---
 
