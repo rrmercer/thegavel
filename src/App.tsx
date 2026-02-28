@@ -1,35 +1,30 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useVotedPolls } from './hooks/useVotedPolls'
+import { CreatePollForm } from './components/CreatePollForm'
+import { PollView } from './components/PollView'
+import { ResultsView } from './components/ResultsView'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+function getPollId(): string | null {
+  return new URLSearchParams(window.location.search).get('poll')
 }
 
-export default App
+export default function App() {
+  const { fingerprint, hasVoted, markVoted } = useVotedPolls()
+  const [pollId] = useState(getPollId)
+
+  if (!pollId) {
+    return <CreatePollForm />
+  }
+
+  if (hasVoted(pollId)) {
+    return <ResultsView pollId={pollId} />
+  }
+
+  return (
+    <PollView
+      pollId={pollId}
+      fingerprint={fingerprint}
+      onVoted={markVoted}
+    />
+  )
+}
