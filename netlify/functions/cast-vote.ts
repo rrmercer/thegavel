@@ -1,16 +1,15 @@
-import type { Handler } from '@netlify/functions'
 import { supabase } from './lib/supabase'
 
-export const handler: Handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
+export default async (req: Request) => {
+  if (req.method !== 'POST') {
+    return Response.json({ error: 'Method not allowed' }, { status: 405 })
   }
 
   let body: unknown
   try {
-    body = JSON.parse(event.body ?? '')
+    body = await req.json()
   } catch {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON body' }) }
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
   const { pollId, optionId, voterFingerprint } = body as {
@@ -20,7 +19,10 @@ export const handler: Handler = async (event) => {
   }
 
   if (typeof pollId !== 'string' || typeof optionId !== 'string' || typeof voterFingerprint !== 'string') {
-    return { statusCode: 400, body: JSON.stringify({ error: 'pollId, optionId, and voterFingerprint are required strings' }) }
+    return Response.json(
+      { error: 'pollId, optionId, and voterFingerprint are required strings' },
+      { status: 400 }
+    )
   }
 
   // Verify the option actually belongs to this poll (prevents cross-poll vote injection)
@@ -32,7 +34,7 @@ export const handler: Handler = async (event) => {
     .single()
 
   if (optionError || !option) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'invalid_option' }) }
+    return Response.json({ error: 'invalid_option' }, { status: 400 })
   }
 
   const { error: voteError } = await supabase.from('votes').insert({
@@ -44,14 +46,10 @@ export const handler: Handler = async (event) => {
   if (voteError) {
     // Postgres unique violation code
     if (voteError.code === '23505') {
-      return { statusCode: 409, body: JSON.stringify({ error: 'already_voted' }) }
+      return Response.json({ error: 'already_voted' }, { status: 409 })
     }
-    return { statusCode: 500, body: JSON.stringify({ error: 'Failed to record vote' }) }
+    return Response.json({ error: 'Failed to record vote' }, { status: 500 })
   }
 
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ success: true }),
-  }
+  return Response.json({ success: true })
 }

@@ -1,14 +1,13 @@
-import type { Handler } from '@netlify/functions'
 import { supabase } from './lib/supabase'
 
-export const handler: Handler = async (event) => {
-  if (event.httpMethod !== 'GET') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
+export default async (req: Request) => {
+  if (req.method !== 'GET') {
+    return Response.json({ error: 'Method not allowed' }, { status: 405 })
   }
 
-  const pollId = event.queryStringParameters?.pollId
+  const pollId = new URL(req.url).searchParams.get('pollId')
   if (!pollId) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'pollId is required' }) }
+    return Response.json({ error: 'pollId is required' }, { status: 400 })
   }
 
   const { data: poll, error: pollError } = await supabase
@@ -19,7 +18,7 @@ export const handler: Handler = async (event) => {
     .single()
 
   if (pollError || !poll) {
-    return { statusCode: 404, body: JSON.stringify({ error: 'Poll not found' }) }
+    return Response.json({ error: 'Poll not found' }, { status: 404 })
   }
 
   const { data: options, error: optionsError } = await supabase
@@ -29,12 +28,8 @@ export const handler: Handler = async (event) => {
     .order('position', { ascending: true })
 
   if (optionsError) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Failed to fetch options' }) }
+    return Response.json({ error: 'Failed to fetch options' }, { status: 500 })
   }
 
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...poll, options }),
-  }
+  return Response.json({ ...poll, options })
 }
