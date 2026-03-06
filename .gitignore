@@ -2,8 +2,7 @@
 node_modules/
 
 .claude/
-# supabase
-supabase/
+supabase/.temp/
 
 # Environment / secrets — NEVER commit these
 .env
