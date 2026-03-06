@@ -25,3 +25,12 @@ export interface PollResults {
   is_closed: boolean
   closes_at: string | null
 }
+
+export interface PollSummary {
+  id: string
+  question: string
+  created_at: string
+  closes_at: string | null
+  is_closed: boolean
+  totalVotes: number
+}
