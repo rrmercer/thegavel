@@ -12,7 +12,7 @@ export default async (req: Request) => {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { question, options } = body as { question: unknown; options: unknown }
+  const { question, options, closes_at } = body as { question: unknown; options: unknown; closes_at: unknown }
 
   if (typeof question !== 'string' || question.trim().length === 0 || question.length > 500) {
     return Response.json(
@@ -33,9 +33,24 @@ export default async (req: Request) => {
     )
   }
 
+  if (closes_at !== undefined) {
+    if (typeof closes_at !== 'string' || isNaN(Date.parse(closes_at))) {
+      return Response.json(
+        { error: 'closes_at must be a valid ISO 8601 datetime string' },
+        { status: 400 }
+      )
+    }
+    if (new Date(closes_at) <= new Date()) {
+      return Response.json(
+        { error: 'closes_at must be a future datetime' },
+        { status: 400 }
+      )
+    }
+  }
+
   const { data: poll, error: pollError } = await supabase
     .from('polls')
-    .insert({ question: question.trim() })
+    .insert({ question: question.trim(), closes_at: closes_at ?? null })
     .select('id')
     .single()
 

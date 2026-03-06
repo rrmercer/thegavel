@@ -24,6 +24,7 @@ export function ResultsView({ pollId, votedOptionId }: Props) {
     <div className="card">
       <h2>{results.question}</h2>
       <p className="total-votes">{results.totalVotes} {results.totalVotes === 1 ? 'vote' : 'votes'} total</p>
+      {results.is_closed && <p className="poll-closed-badge">Poll closed</p>}
       <ul className="results-list">
         {results.options.map((opt) => (
           <li key={opt.id} className={opt.id === votedOptionId ? 'voted' : ''}>

@@ -137,6 +137,14 @@ SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY
 ```
 
+To link your local environment to the Supabase project:
+
+```bash
+brew install supabase/tap/supabase
+supabase login
+supabase link --project-ref <your-project-ref>
+```
+
 ---
 
 ## Secret Scanning

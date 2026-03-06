@@ -37,6 +37,9 @@ export function PollView({ pollId, fingerprint, onVoted }: Props) {
       if (msg === 'already_voted') {
         onVoted(pollId)
         setVoted(true)
+      } else if (msg === 'poll_closed') {
+        setVoteError('This poll has closed and is no longer accepting votes.')
+        setSubmitting(false)
       } else {
         setVoteError('Something went wrong. Please try again.')
         setSubmitting(false)
@@ -51,6 +54,9 @@ export function PollView({ pollId, fingerprint, onVoted }: Props) {
   return (
     <div className="card">
       <h2>{poll.question}</h2>
+      {poll.closes_at && (
+        <p className="closes-at">Closes {new Date(poll.closes_at).toLocaleString()}</p>
+      )}
       <ul className="options-list">
         {poll.options.map((opt) => (
           <li key={opt.id}>
