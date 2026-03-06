@@ -10,7 +10,6 @@ supabase/.temp/
 .env.*.local
 .env.development
 .env.production
-.claude/*
 
 # Build output
 dist/
