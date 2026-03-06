@@ -25,16 +25,25 @@ export default async (req: Request) => {
     )
   }
 
-  // Verify the option actually belongs to this poll (prevents cross-poll vote injection)
+  // Verify the option belongs to this poll and fetch the poll's close time in one query.
+  // NOTE: There is a known TOCTOU (time-of-check/time-of-use) race between the expiry
+  // check below and the vote insert. Under concurrent load a vote could be accepted a few
+  // milliseconds after the poll closes. The authoritative guard should be moved to a
+  // Postgres trigger or conditional INSERT when stricter enforcement is required.
   const { data: option, error: optionError } = await supabase
     .from('options')
-    .select('id')
+    .select('id, polls!inner(closes_at)')
     .eq('id', optionId)
     .eq('poll_id', pollId)
     .single()
 
   if (optionError || !option) {
     return Response.json({ error: 'invalid_option' }, { status: 400 })
+  }
+
+  const { closes_at } = option.polls as { closes_at: string | null }
+  if (closes_at && new Date() > new Date(closes_at)) {
+    return Response.json({ error: 'poll_closed' }, { status: 403 })
   }
 
   const { error: voteError } = await supabase.from('votes').insert({

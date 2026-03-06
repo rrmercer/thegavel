@@ -9,7 +9,7 @@ const BASE = 'http://localhost/.netlify/functions/get-results'
 const pollId = '550e8400-e29b-41d4-a716-446655440000'
 const URL_WITH_POLL = `${BASE}?pollId=${pollId}`
 
-const POLL = { id: pollId, question: 'Best language?' }
+const POLL = { id: pollId, question: 'Best language?', closes_at: null }
 const OPTIONS = [
   { id: 'opt-1', text: 'TypeScript', position: 0 },
   { id: 'opt-2', text: 'Rust', position: 1 },
@@ -96,6 +96,41 @@ describe('get-results', () => {
       const body = await res.json()
       expect(body.totalVotes).toBe(0)
       body.options.forEach((o: { percentage: number }) => expect(o.percentage).toBe(0))
+    })
+
+    it('returns is_closed=false when closes_at is null', async () => {
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: POLL, error: null }))
+        .mockReturnValueOnce(mockChain({ data: OPTIONS, error: null }))
+        .mockReturnValueOnce(mockChain({ data: [], error: null }))
+
+      const res = await handler(makeRequest('GET', URL_WITH_POLL))
+      const body = await res.json()
+      expect(body.is_closed).toBe(false)
+    })
+
+    it('returns is_closed=true when closes_at is in the past', async () => {
+      const closedPoll = { ...POLL, closes_at: new Date(Date.now() - 1000).toISOString() }
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: closedPoll, error: null }))
+        .mockReturnValueOnce(mockChain({ data: OPTIONS, error: null }))
+        .mockReturnValueOnce(mockChain({ data: [], error: null }))
+
+      const res = await handler(makeRequest('GET', URL_WITH_POLL))
+      const body = await res.json()
+      expect(body.is_closed).toBe(true)
+    })
+
+    it('returns is_closed=false when closes_at is in the future', async () => {
+      const openPoll = { ...POLL, closes_at: new Date(Date.now() + 3_600_000).toISOString() }
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: openPoll, error: null }))
+        .mockReturnValueOnce(mockChain({ data: OPTIONS, error: null }))
+        .mockReturnValueOnce(mockChain({ data: [], error: null }))
+
+      const res = await handler(makeRequest('GET', URL_WITH_POLL))
+      const body = await res.json()
+      expect(body.is_closed).toBe(false)
     })
   })
 })

@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+.claude/
+supabase/.temp/
+
 # Environment / secrets — NEVER commit these
 .env
 .env.local
