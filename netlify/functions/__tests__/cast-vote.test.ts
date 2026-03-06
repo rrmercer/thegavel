@@ -55,6 +55,7 @@ describe('cast-vote', () => {
     it('returns 409 when the voter has already voted', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId }, error: null })) // option lookup
+        .mockReturnValueOnce(mockChain({ data: { closes_at: null }, error: null }))         // poll lookup
         .mockReturnValueOnce(mockChain({ error: { code: '23505' } }))                       // votes insert
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))
@@ -66,6 +67,7 @@ describe('cast-vote', () => {
     it('returns 500 on unexpected DB error when inserting vote', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId }, error: null }))
+        .mockReturnValueOnce(mockChain({ data: { closes_at: null }, error: null }))         // poll lookup
         .mockReturnValueOnce(mockChain({ error: { code: '500', message: 'DB error' } }))
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))
@@ -75,12 +77,36 @@ describe('cast-vote', () => {
     it('returns 200 with success on a valid vote', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId }, error: null }))
+        .mockReturnValueOnce(mockChain({ data: { closes_at: null }, error: null }))         // poll lookup
         .mockReturnValueOnce(mockChain({ error: null }))
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))
       expect(res.status).toBe(200)
       const body = await res.json()
       expect(body.success).toBe(true)
+    })
+
+    it('returns 403 poll_closed when poll has expired', async () => {
+      const pastDate = new Date(Date.now() - 1000).toISOString()
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId }, error: null }))
+        .mockReturnValueOnce(mockChain({ data: { closes_at: pastDate }, error: null }))
+
+      const res = await handler(makeRequest('POST', BASE, VALID_BODY))
+      expect(res.status).toBe(403)
+      const body = await res.json()
+      expect(body.error).toBe('poll_closed')
+    })
+
+    it('returns 200 when poll closes_at is in the future', async () => {
+      const futureDate = new Date(Date.now() + 3_600_000).toISOString()
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId }, error: null }))
+        .mockReturnValueOnce(mockChain({ data: { closes_at: futureDate }, error: null }))
+        .mockReturnValueOnce(mockChain({ error: null }))
+
+      const res = await handler(makeRequest('POST', BASE, VALID_BODY))
+      expect(res.status).toBe(200)
     })
   })
 })

@@ -63,6 +63,20 @@ describe('create-poll', () => {
       const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', ''] }))
       expect(res.status).toBe(400)
     })
+
+    it('returns 400 if closes_at is not a string', async () => {
+      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: 12345 }))
+      expect(res.status).toBe(400)
+      const body = await res.json()
+      expect(body.error).toMatch(/closes_at/)
+    })
+
+    it('returns 400 if closes_at is not a parseable date', async () => {
+      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: 'not-a-date' }))
+      expect(res.status).toBe(400)
+      const body = await res.json()
+      expect(body.error).toMatch(/closes_at/)
+    })
   })
 
   describe('database interactions', () => {
@@ -75,6 +89,16 @@ describe('create-poll', () => {
       expect(res.status).toBe(201)
       const body = await res.json()
       expect(body.pollId).toBe('new-poll-id')
+    })
+
+    it('returns 201 when a valid closes_at is provided', async () => {
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: { id: 'expiring-poll' }, error: null }))
+        .mockReturnValueOnce(mockChain({ error: null }))
+
+      const closes_at = new Date(Date.now() + 3_600_000).toISOString()
+      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at }))
+      expect(res.status).toBe(201)
     })
 
     it('returns 500 if poll insert fails', async () => {

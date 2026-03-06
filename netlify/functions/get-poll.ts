@@ -12,7 +12,7 @@ export default async (req: Request) => {
 
   const { data: poll, error: pollError } = await supabase
     .from('polls')
-    .select('id, question, created_at')
+    .select('id, question, created_at, closes_at')
     .eq('id', pollId)
     .eq('is_active', true)
     .single()

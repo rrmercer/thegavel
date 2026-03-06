@@ -15,7 +15,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  createPoll: (body: { question: string; options: string[] }) =>
+  createPoll: (body: { question: string; options: string[]; closes_at?: string }) =>
     apiFetch<{ pollId: string }>('/create-poll', {
       method: 'POST',
       body: JSON.stringify(body),

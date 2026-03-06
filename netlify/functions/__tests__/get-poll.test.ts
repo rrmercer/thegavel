@@ -41,15 +41,16 @@ describe('get-poll', () => {
 
     it('returns 500 when options fetch fails', async () => {
       mockFrom
-        .mockReturnValueOnce(mockChain({ data: { id: pollId, question: 'Q?', created_at: '2024-01-01' }, error: null }))
+        .mockReturnValueOnce(mockChain({ data: { id: pollId, question: 'Q?', created_at: '2024-01-01', closes_at: null }, error: null }))
         .mockReturnValueOnce(mockChain({ data: null, error: { message: 'DB error' } }))
 
       const res = await handler(makeRequest('GET', url))
       expect(res.status).toBe(500)
     })
 
-    it('returns 200 with poll and options on success', async () => {
-      const poll = { id: pollId, question: 'Lunch?', created_at: '2024-01-01' }
+    it('returns 200 with poll and options including closes_at', async () => {
+      const closes_at = '2027-01-01T00:00:00Z'
+      const poll = { id: pollId, question: 'Lunch?', created_at: '2024-01-01', closes_at }
       const options = [
         { id: 'opt-1', text: 'Pizza', position: 0 },
         { id: 'opt-2', text: 'Tacos', position: 1 },
@@ -62,8 +63,20 @@ describe('get-poll', () => {
       expect(res.status).toBe(200)
       const body = await res.json()
       expect(body.question).toBe('Lunch?')
+      expect(body.closes_at).toBe(closes_at)
       expect(body.options).toHaveLength(2)
       expect(body.options[0].text).toBe('Pizza')
+    })
+
+    it('returns closes_at as null when poll has no expiry', async () => {
+      const poll = { id: pollId, question: 'Q?', created_at: '2024-01-01', closes_at: null }
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: poll, error: null }))
+        .mockReturnValueOnce(mockChain({ data: [], error: null }))
+
+      const res = await handler(makeRequest('GET', url))
+      const body = await res.json()
+      expect(body.closes_at).toBeNull()
     })
   })
 })

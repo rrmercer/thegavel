@@ -12,7 +12,7 @@ export default async (req: Request) => {
 
   const { data: poll, error: pollError } = await supabase
     .from('polls')
-    .select('id, question')
+    .select('id, question, closes_at')
     .eq('id', pollId)
     .eq('is_active', true)
     .single()
@@ -61,5 +61,6 @@ export default async (req: Request) => {
     question: poll.question,
     totalVotes,
     options: optionsWithResults,
+    is_closed: poll.closes_at ? new Date() > new Date(poll.closes_at) : false,
   })
 }

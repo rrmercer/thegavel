@@ -37,6 +37,21 @@ export default async (req: Request) => {
     return Response.json({ error: 'invalid_option' }, { status: 400 })
   }
 
+  // Check poll is still open
+  const { data: poll, error: pollFetchError } = await supabase
+    .from('polls')
+    .select('closes_at')
+    .eq('id', pollId)
+    .single()
+
+  if (pollFetchError || !poll) {
+    return Response.json({ error: 'Failed to fetch poll' }, { status: 500 })
+  }
+
+  if (poll.closes_at && new Date() > new Date(poll.closes_at)) {
+    return Response.json({ error: 'poll_closed' }, { status: 403 })
+  }
+
   const { error: voteError } = await supabase.from('votes').insert({
     poll_id: pollId,
     option_id: optionId,
