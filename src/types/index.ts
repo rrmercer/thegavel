@@ -22,3 +22,12 @@ export interface PollResults {
   totalVotes: number
   options: PollOptionResult[]
 }
+
+export interface PollSummary {
+  id: string
+  question: string
+  created_at: string
+  closes_at: string | null
+  is_closed: boolean
+  totalVotes: number
+}

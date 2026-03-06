@@ -12,10 +12,9 @@ const POLLS = [
   { id: 'poll-2', question: 'Best OS?', created_at: '2026-03-05T10:00:00Z', closes_at: null },
 ]
 
-const VOTES = [
-  { poll_id: 'poll-1' },
-  { poll_id: 'poll-1' },
-  { poll_id: 'poll-2' },
+const VOTE_COUNTS = [
+  { poll_id: 'poll-1', total: 2 },
+  { poll_id: 'poll-2', total: 1 },
 ]
 
 beforeEach(() => {
@@ -70,7 +69,7 @@ describe('list-polls', () => {
     it('uses page=1 and limit=20 when no params are provided', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLLS, error: null, count: 2 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', BASE))
       expect(res.status).toBe(200)
@@ -84,7 +83,7 @@ describe('list-polls', () => {
     it('caps limit at 100 when a larger value is requested', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLLS, error: null, count: 2 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', `${BASE}?limit=500`))
       expect(res.status).toBe(200)
@@ -95,7 +94,7 @@ describe('list-polls', () => {
     it('uses exactly limit=100 when requested', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLLS, error: null, count: 2 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', `${BASE}?limit=100`))
       expect(res.status).toBe(200)
@@ -108,7 +107,7 @@ describe('list-polls', () => {
     it('returns polls with correct shape', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLLS, error: null, count: 2 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', BASE))
       expect(res.status).toBe(200)
@@ -131,7 +130,7 @@ describe('list-polls', () => {
     it('returns correct totalVotes per poll', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLLS, error: null, count: 2 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', BASE))
       const body = await res.json()
@@ -158,7 +157,7 @@ describe('list-polls', () => {
     it('returns correct total from the count field', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLLS, error: null, count: 42 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', BASE))
       const body = await res.json()
@@ -168,7 +167,7 @@ describe('list-polls', () => {
     it('returns the supplied page number in the response', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLLS, error: null, count: 50 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', `${BASE}?page=3&limit=10`))
       const body = await res.json()
@@ -230,7 +229,7 @@ describe('list-polls', () => {
       const pollsWithHash = POLLS.map((p) => ({ ...p, owner_token_hash: 'secret-hash' }))
       mockFrom
         .mockReturnValueOnce(mockChain({ data: pollsWithHash, error: null, count: 2 }))
-        .mockReturnValueOnce(mockChain({ data: VOTES, error: null }))
+        .mockReturnValueOnce(mockChain({ data: VOTE_COUNTS, error: null }))
 
       const res = await handler(makeRequest('GET', BASE))
       const body = await res.json()

@@ -1,4 +1,4 @@
-import type { Poll, PollResults } from '../types'
+import type { Poll, PollResults, PollSummary } from '../types'
 
 const BASE = '/.netlify/functions'
 
@@ -32,4 +32,14 @@ export const api = {
 
   getResults: (pollId: string) =>
     apiFetch<PollResults>(`/get-results?pollId=${pollId}`),
+
+  listPolls: (params?: { page?: number; limit?: number }) => {
+    const query = new URLSearchParams()
+    if (params?.page !== undefined) query.set('page', String(params.page))
+    if (params?.limit !== undefined) query.set('limit', String(params.limit))
+    const qs = query.toString()
+    return apiFetch<{ polls: PollSummary[]; total: number; page: number; limit: number }>(
+      `/list-polls${qs ? `?${qs}` : ''}`
+    )
+  },
 }
