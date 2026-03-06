@@ -12,6 +12,9 @@ vi.mock('../components/PollView', () => ({
 vi.mock('../components/ResultsView', () => ({
   ResultsView: () => <div data-testid="results-view" />,
 }))
+vi.mock('../components/ListPollsView', () => ({
+  ListPollsView: () => <div data-testid="list-polls-view" />,
+}))
 
 // Control voted-poll state per test
 const mockHasVoted = vi.fn()
@@ -55,5 +58,11 @@ describe('App routing', () => {
     mockHasVoted.mockReturnValue(true)
     render(<App />)
     expect(screen.getByTestId('results-view')).toBeInTheDocument()
+  })
+
+  it('renders ListPollsView when view=list query param is present', () => {
+    setSearch('?view=list')
+    render(<App />)
+    expect(screen.getByTestId('list-polls-view')).toBeInTheDocument()
   })
 })

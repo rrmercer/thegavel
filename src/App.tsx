@@ -3,14 +3,20 @@ import { useVotedPolls } from './hooks/useVotedPolls'
 import { CreatePollForm } from './components/CreatePollForm'
 import { PollView } from './components/PollView'
 import { ResultsView } from './components/ResultsView'
+import { ListPollsView } from './components/ListPollsView'
 
-function getPollId(): string | null {
-  return new URLSearchParams(window.location.search).get('poll')
+function getParams(): { pollId: string | null; view: string | null } {
+  const params = new URLSearchParams(window.location.search)
+  return { pollId: params.get('poll'), view: params.get('view') }
 }
 
 export default function App() {
   const { fingerprint, hasVoted, markVoted } = useVotedPolls()
-  const [pollId] = useState(getPollId)
+  const [{ pollId, view }] = useState(getParams)
+
+  if (view === 'list') {
+    return <ListPollsView />
+  }
 
   if (!pollId) {
     return <CreatePollForm />
