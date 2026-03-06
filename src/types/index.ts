@@ -22,5 +22,6 @@ export interface PollResults {
   question: string
   totalVotes: number
   options: PollOptionResult[]
-  is_closed?: boolean
+  is_closed: boolean
+  closes_at: string | null
 }

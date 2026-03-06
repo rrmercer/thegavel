@@ -33,11 +33,19 @@ export default async (req: Request) => {
     )
   }
 
-  if (closes_at !== undefined && (typeof closes_at !== 'string' || isNaN(Date.parse(closes_at)))) {
-    return Response.json(
-      { error: 'closes_at must be a valid ISO 8601 datetime string' },
-      { status: 400 }
-    )
+  if (closes_at !== undefined) {
+    if (typeof closes_at !== 'string' || isNaN(Date.parse(closes_at))) {
+      return Response.json(
+        { error: 'closes_at must be a valid ISO 8601 datetime string' },
+        { status: 400 }
+      )
+    }
+    if (new Date(closes_at) <= new Date()) {
+      return Response.json(
+        { error: 'closes_at must be a future datetime' },
+        { status: 400 }
+      )
+    }
   }
 
   const { data: poll, error: pollError } = await supabase

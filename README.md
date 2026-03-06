@@ -137,6 +137,9 @@ SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY
 ```
 
+To install: brew install supabase/tap/supabase
+supabase login
+supabase link --project-ref <your-project-ref>
 ---
 
 ## Secret Scanning

@@ -52,4 +52,19 @@ describe('ResultsView', () => {
 
     await waitFor(() => expect(screen.getByText(/failed to load results/i)).toBeInTheDocument())
   })
+
+  it('shows a "Poll closed" badge when is_closed is true', async () => {
+    mockGetResults.mockResolvedValue({ ...RESULTS, is_closed: true, closes_at: null })
+    render(<ResultsView pollId="poll-1" />)
+
+    await waitFor(() => expect(screen.getByText(/poll closed/i)).toBeInTheDocument())
+  })
+
+  it('does not show a "Poll closed" badge when is_closed is false', async () => {
+    mockGetResults.mockResolvedValue({ ...RESULTS, is_closed: false, closes_at: null })
+    render(<ResultsView pollId="poll-1" />)
+
+    await waitFor(() => screen.getByText('Best language?'))
+    expect(screen.queryByText(/poll closed/i)).not.toBeInTheDocument()
+  })
 })

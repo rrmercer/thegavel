@@ -38,8 +38,8 @@ export function PollView({ pollId, fingerprint, onVoted }: Props) {
         onVoted(pollId)
         setVoted(true)
       } else if (msg === 'poll_closed') {
-        onVoted(pollId)
-        setVoted(true)
+        setVoteError('This poll has closed and is no longer accepting votes.')
+        setSubmitting(false)
       } else {
         setVoteError('Something went wrong. Please try again.')
         setSubmitting(false)

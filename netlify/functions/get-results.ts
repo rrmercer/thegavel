@@ -62,5 +62,6 @@ export default async (req: Request) => {
     totalVotes,
     options: optionsWithResults,
     is_closed: poll.closes_at ? new Date() > new Date(poll.closes_at) : false,
+    closes_at: poll.closes_at ?? null,
   })
 }

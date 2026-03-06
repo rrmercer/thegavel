@@ -77,6 +77,14 @@ describe('create-poll', () => {
       const body = await res.json()
       expect(body.error).toMatch(/closes_at/)
     })
+
+    it('returns 400 if closes_at is in the past', async () => {
+      const pastDate = new Date(Date.now() - 1000).toISOString()
+      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: pastDate }))
+      expect(res.status).toBe(400)
+      const body = await res.json()
+      expect(body.error).toMatch(/future/)
+    })
   })
 
   describe('database interactions', () => {
