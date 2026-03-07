@@ -68,9 +68,7 @@ describe('PollView', () => {
     await user.click(screen.getByLabelText('TypeScript'))
     await user.click(screen.getByRole('button', { name: /vote/i }))
 
-    await waitFor(() =>
-      expect(screen.getByText(/this poll has closed/i)).toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.getByText(/this poll has closed/i)).toBeInTheDocument())
     expect(DEFAULT_PROPS.onVoted).not.toHaveBeenCalled()
     expect(screen.queryByTestId('results-view')).not.toBeInTheDocument()
   })

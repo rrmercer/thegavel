@@ -8,7 +8,12 @@ vi.mock('../lib/supabase', () => ({ supabase: { from: mockFrom } }))
 const BASE = 'http://localhost/.netlify/functions/list-polls'
 
 const POLLS = [
-  { id: 'poll-1', question: 'Favourite colour?', created_at: '2026-03-06T12:00:00Z', closes_at: null },
+  {
+    id: 'poll-1',
+    question: 'Favourite colour?',
+    created_at: '2026-03-06T12:00:00Z',
+    closes_at: null,
+  },
   { id: 'poll-2', question: 'Best OS?', created_at: '2026-03-05T10:00:00Z', closes_at: null },
 ]
 
@@ -242,7 +247,9 @@ describe('list-polls', () => {
 
   describe('database error handling', () => {
     it('returns 500 when polls fetch fails', async () => {
-      mockFrom.mockReturnValueOnce(mockChain({ data: null, error: { message: 'DB error' }, count: null }))
+      mockFrom.mockReturnValueOnce(
+        mockChain({ data: null, error: { message: 'DB error' }, count: null }),
+      )
 
       const res = await handler(makeRequest('GET', BASE))
       expect(res.status).toBe(500)

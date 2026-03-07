@@ -18,10 +18,14 @@ export default async (req: Request) => {
     voterFingerprint: unknown
   }
 
-  if (typeof pollId !== 'string' || typeof optionId !== 'string' || typeof voterFingerprint !== 'string') {
+  if (
+    typeof pollId !== 'string' ||
+    typeof optionId !== 'string' ||
+    typeof voterFingerprint !== 'string'
+  ) {
     return Response.json(
       { error: 'pollId, optionId, and voterFingerprint are required strings' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 

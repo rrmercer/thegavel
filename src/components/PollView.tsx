@@ -19,7 +19,8 @@ export function PollView({ pollId, fingerprint, onVoted }: Props) {
   const [voteError, setVoteError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getPoll(pollId)
+    api
+      .getPoll(pollId)
       .then(setPoll)
       .catch(() => setNotFound(true))
   }, [pollId])

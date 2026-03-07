@@ -41,7 +41,12 @@ describe('get-poll', () => {
 
     it('returns 500 when options fetch fails', async () => {
       mockFrom
-        .mockReturnValueOnce(mockChain({ data: { id: pollId, question: 'Q?', created_at: '2024-01-01', closes_at: null }, error: null }))
+        .mockReturnValueOnce(
+          mockChain({
+            data: { id: pollId, question: 'Q?', created_at: '2024-01-01', closes_at: null },
+            error: null,
+          }),
+        )
         .mockReturnValueOnce(mockChain({ data: null, error: { message: 'DB error' } }))
 
       const res = await handler(makeRequest('GET', url))

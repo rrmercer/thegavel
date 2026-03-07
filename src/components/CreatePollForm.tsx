@@ -35,7 +35,10 @@ export function CreatePollForm() {
     setError(null)
     setSubmitting(true)
     try {
-      const { pollId } = await api.createPoll({ question: trimmedQuestion, options: trimmedOptions })
+      const { pollId } = await api.createPoll({
+        question: trimmedQuestion,
+        options: trimmedOptions,
+      })
       const link = `${window.location.origin}/?poll=${pollId}`
       setCreatedLink(link)
       window.history.pushState({}, '', `/?poll=${pollId}`)
