@@ -61,6 +61,7 @@ export function CreatePollForm() {
           <code className="poll-link">{createdLink}</code>
           <button onClick={copyLink}>{copied ? 'Copied!' : 'Copy'}</button>
         </div>
+        <a href="/?view=list">View all polls</a>
       </div>
     )
   }
@@ -112,6 +113,7 @@ export function CreatePollForm() {
           {submitting ? 'Creating…' : 'Create poll'}
         </button>
       </form>
+      <a href="/?view=list">View all polls</a>
     </div>
   )
 }

@@ -34,7 +34,7 @@ export default async (req: Request) => {
   }
 
   if (closes_at !== undefined) {
-    if (typeof closes_at !== 'string' || isNaN(Date.parse(closes_at))) {
+    if (typeof closes_at !== 'string' || closes_at.length > 100 || isNaN(Date.parse(closes_at))) {
       return Response.json(
         { error: 'closes_at must be a valid ISO 8601 datetime string' },
         { status: 400 }
