@@ -63,10 +63,6 @@ export function ListPollsView() {
                 <a
                   className="poll-list-item"
                   href={`/?poll=${poll.id}`}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    window.location.href = `/?poll=${poll.id}`
-                  }}
                 >
                   <span className="poll-list-question">{poll.question}</span>
                   <span className="poll-list-meta">
