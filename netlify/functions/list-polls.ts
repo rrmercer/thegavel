@@ -30,7 +30,11 @@ export default async (req: Request) => {
 
   let polls, pollsError, count
   try {
-    ;({ data: polls, error: pollsError, count } = await supabase
+    ;({
+      data: polls,
+      error: pollsError,
+      count,
+    } = await supabase
       .from('polls')
       .select('id, question, created_at, closes_at', { count: 'exact' })
       .eq('is_active', true)

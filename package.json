@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "preview": "vite preview",
     "test:functions": "vitest --config vitest.functions.config.ts",
     "test:frontend": "vitest --config vitest.frontend.config.ts",
@@ -33,6 +36,7 @@
     "globals": "^16.5.0",
     "jsdom": "^28.1.0",
     "netlify-cli": "^24.0.1",
+    "prettier": "^3.8.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
     "vite": "^7.3.1",

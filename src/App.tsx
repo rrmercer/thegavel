@@ -26,11 +26,5 @@ export default function App() {
     return <ResultsView pollId={pollId} />
   }
 
-  return (
-    <PollView
-      pollId={pollId}
-      fingerprint={fingerprint}
-      onVoted={markVoted}
-    />
-  )
+  return <PollView pollId={pollId} fingerprint={fingerprint} onVoted={markVoted} />
 }

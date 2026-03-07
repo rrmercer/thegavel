@@ -37,7 +37,9 @@ export function ListPollsView() {
       .catch(() => {
         if (!cancelled) setError(true)
       })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [page])
 
   const loading = !error && (result === null || result.page !== page)
@@ -52,7 +54,9 @@ export function ListPollsView() {
       {error && <p className="error">Failed to load polls.</p>}
 
       {!loading && !error && result && result.polls.length === 0 && (
-        <p>No polls yet. <a href="/">Create the first one!</a></p>
+        <p>
+          No polls yet. <a href="/">Create the first one!</a>
+        </p>
       )}
 
       {!loading && !error && result && result.polls.length > 0 && (
@@ -60,18 +64,13 @@ export function ListPollsView() {
           <ul className="polls-list">
             {result.polls.map((poll) => (
               <li key={poll.id}>
-                <a
-                  className="poll-list-item"
-                  href={`/?poll=${poll.id}`}
-                >
+                <a className="poll-list-item" href={`/?poll=${poll.id}`}>
                   <span className="poll-list-question">{poll.question}</span>
                   <span className="poll-list-meta">
                     {formatDate(poll.created_at)}
                     {' · '}
                     {poll.totalVotes} {poll.totalVotes === 1 ? 'vote' : 'votes'}
-                    {poll.is_closed && (
-                      <span className="badge-closed">Closed</span>
-                    )}
+                    {poll.is_closed && <span className="badge-closed">Closed</span>}
                   </span>
                 </a>
               </li>
@@ -79,19 +78,13 @@ export function ListPollsView() {
           </ul>
 
           <div className="pagination">
-            <button
-              onClick={() => setPage((p) => p - 1)}
-              disabled={page <= 1}
-            >
+            <button onClick={() => setPage((p) => p - 1)} disabled={page <= 1}>
               Previous
             </button>
             <span>
               Page {page} of {totalPages}
             </span>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={page >= totalPages}
-            >
+            <button onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages}>
               Next
             </button>
           </div>

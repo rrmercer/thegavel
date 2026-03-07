@@ -13,6 +13,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Motivation:** The current `voterFingerprint` is a UUID generated in the browser and stored in `localStorage`. It is trivially spoofable: any user can submit arbitrary UUIDs to cast multiple votes. Deduplication must move server-side.
 
 **Acceptance criteria:**
+
 - `cast-vote` no longer accepts or reads a `voterFingerprint` field from the request body
 - Vote deduplication is computed server-side using a hash of the caller's IP address and `User-Agent` header
 - The `voter_fingerprint` column is removed from the `votes` table (provide a migration script)
@@ -28,6 +29,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Motivation:** Business units require up to 10 options for multi-candidate ballots. The existing cap blocks legitimate use cases.
 
 **Acceptance criteria:**
+
 - `create-poll` validation changed from "2–4 options" to "2–10 options"
 - Error message updated to reflect the new limit
 - `Poll` and `PollOption` types remain unchanged (no schema change needed)
@@ -40,6 +42,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Motivation:** Compliance and audit requirements: all polls must be traceable to a creator credential. Fully anonymous creation with no ownership record is not permitted.
 
 **Acceptance criteria:**
+
 - Poll creation requires an `ownerToken` to be issued and stored at creation time (see F2)
 - Polls created without an owner token are not permitted
 - This is enforced at the function level, not via user accounts
@@ -53,6 +56,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Status:** Required
 
 **Acceptance criteria:**
+
 - `create-poll` accepts an optional `closes_at` field (ISO 8601 datetime string)
 - If omitted, the poll has no expiry (open indefinitely)
 - `closes_at` is stored on the `polls` table (provide a migration script)
@@ -68,6 +72,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Depends on:** D3
 
 **Acceptance criteria:**
+
 - `create-poll` generates a cryptographically random UUID as `ownerToken` on every successful creation
 - `ownerToken` is stored (hashed with SHA-256) in a new `owner_token_hash` column on the `polls` table (provide a migration script)
 - `create-poll` response includes `ownerToken` in plaintext — this is the only time it is returned; the caller must store it
@@ -84,6 +89,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Status:** Nice-to-have
 
 **Acceptance criteria:**
+
 - New Netlify Function `list-polls` responds to GET requests
 - Accepts optional query params: `page` (default 1) and `limit` (default 20, max 100)
 - Returns `{ polls: [{ id, question, created_at, closes_at, is_closed, totalVotes }], total, page, limit }`
@@ -106,6 +112,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Depends on:** F2
 
 **Acceptance criteria:**
+
 - New route `/?dashboard` renders a `DashboardView` component
 - `App.tsx` routing updated to handle the `dashboard` query param
 - `DashboardView` presents a text input for `ownerToken` and a "Load polls" button
@@ -118,11 +125,21 @@ Items are written as acceptance criteria suitable for implementation and testing
 
 ## Security & Auth Requirements
 
+### S0 - Precommit hooks
+
+**Status:** Required
+
+**Acceptance criteria:**
+
+- Standalone type-check step — tsc -b --no Emit as a pre-commit check. Right now type errors are only caught during npm run build, which isn't in the pre-commit flow.
+- Code formatter (Prettier) — Eliminates style noise in PRs. Pair with --check in CI and a format-on-save hook locally.
+
 ### S1 — CORS hardening
 
 **Status:** Required
 
 **Acceptance criteria:**
+
 - All Netlify Functions return the following headers on every response:
   - `Access-Control-Allow-Origin: <APP_ORIGIN>` where `APP_ORIGIN` is read from an environment variable
   - `Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS`
@@ -140,6 +157,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Note:** This is the implementation complement to deprecation D1.
 
 **Acceptance criteria:**
+
 - `cast-vote` reads the `x-forwarded-for` header (falling back to a fixed sentinel if absent) and the `user-agent` header
 - A SHA-256 hash of `"${ip}:${userAgent}"` is computed and stored as `voter_fingerprint` in the `votes` table
 - The `votes` table `UNIQUE(poll_id, voter_fingerprint)` constraint remains in place; no schema change is needed beyond the column rename if desired
@@ -152,6 +170,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Status:** Required
 
 **Acceptance criteria:**
+
 - All functions that accept `pollId` or `optionId` validate the value against a UUID v4 regex before any database call
 - If validation fails, the function returns `{ error: 'invalid_id' }` (400) immediately
 - The regex used: `/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i`
@@ -164,6 +183,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Status:** Required
 
 **Acceptance criteria:**
+
 - `create-poll` rejects any `question` or option string that contains `<script` (case-insensitive); returns `{ error: 'invalid_input' }` (400)
 - All HTML tags are stripped from `question` and option strings before insertion (replace `<[^>]*>` with empty string)
 - Sanitization is applied after length validation but before DB insert
@@ -176,6 +196,7 @@ Items are written as acceptance criteria suitable for implementation and testing
 **Status:** Required
 
 **Acceptance criteria:**
+
 - A new `rate_limits` table in Supabase: `(id, ip_hash text, window_start timestamptz, count int)` with a unique index on `ip_hash`
 - `create-poll` extracts and SHA-256-hashes the caller IP from `x-forwarded-for`
 - On each request, upsert the `rate_limits` row for the IP:
@@ -192,11 +213,11 @@ All schema changes must be accompanied by a SQL migration file placed in `supaba
 
 Required migrations:
 
-| Migration | For |
-|-----------|-----|
-| `..._add_closes_at_to_polls.sql` | F1 |
-| `..._add_owner_token_hash_to_polls.sql` | F2 |
-| `..._create_rate_limits_table.sql` | S5 |
+| Migration                                 | For                                      |
+| ----------------------------------------- | ---------------------------------------- |
+| `..._add_closes_at_to_polls.sql`          | F1                                       |
+| `..._add_owner_token_hash_to_polls.sql`   | F2                                       |
+| `..._create_rate_limits_table.sql`        | S5                                       |
 | `..._remove_voter_fingerprint_column.sql` | D1 / S2 (run after D1 is fully deployed) |
 
 ---

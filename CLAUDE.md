@@ -37,9 +37,9 @@ The frontend never talks to Supabase directly. All DB access goes through the fo
 
 ### TypeScript: two tsconfigs on purpose
 
-| File | Target | Used by |
-|---|---|---|
-| `tsconfig.app.json` | ESNext / ESM / browser | Vite + `src/` |
+| File                              | Target                   | Used by           |
+| --------------------------------- | ------------------------ | ----------------- |
+| `tsconfig.app.json`               | ESNext / ESM / browser   | Vite + `src/`     |
 | `netlify/functions/tsconfig.json` | ES2020 / CommonJS / Node | Netlify Functions |
 
 The root `tsconfig.json` just holds project references and is not used directly.
@@ -51,6 +51,7 @@ Each browser generates a UUID on first visit stored in `localStorage` (`voter_fi
 ### URL routing
 
 No React Router. `App.tsx` reads `window.location.search`:
+
 - `/` → `CreatePollForm`
 - `/?poll=<uuid>` + not voted → `PollView`
 - `/?poll=<uuid>` + already voted → `ResultsView`
@@ -67,6 +68,7 @@ Local: `.env.local` (gitignored). Production: Netlify dashboard → Environment 
 ### Secret scanning
 
 A pre-commit hook runs `detect-secrets` on every staged commit. If it blocks a false positive, update the baseline:
+
 ```bash
 python3 -m detect_secrets scan > .secrets.baseline
 python3 -m detect_secrets audit .secrets.baseline

@@ -64,11 +64,7 @@ describe('get-results', () => {
     })
 
     it('returns correct vote counts and percentages', async () => {
-      const votes = [
-        { option_id: 'opt-1' },
-        { option_id: 'opt-1' },
-        { option_id: 'opt-2' },
-      ]
+      const votes = [{ option_id: 'opt-1' }, { option_id: 'opt-1' }, { option_id: 'opt-2' }]
       mockFrom
         .mockReturnValueOnce(mockChain({ data: POLL, error: null }))
         .mockReturnValueOnce(mockChain({ data: OPTIONS, error: null }))

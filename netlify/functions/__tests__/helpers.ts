@@ -22,11 +22,7 @@ export function mockChain<T>(resolved: T) {
 }
 
 /** Build a minimal Request object for testing Netlify function handlers. */
-export function makeRequest(
-  method: string,
-  url: string,
-  body?: unknown,
-): Request {
+export function makeRequest(method: string, url: string, body?: unknown): Request {
   return new Request(url, {
     method,
     body: body !== undefined ? JSON.stringify(body) : undefined,

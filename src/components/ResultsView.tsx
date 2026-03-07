@@ -12,7 +12,8 @@ export function ResultsView({ pollId, votedOptionId }: Props) {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    api.getResults(pollId)
+    api
+      .getResults(pollId)
       .then(setResults)
       .catch(() => setError(true))
   }, [pollId])
@@ -23,19 +24,26 @@ export function ResultsView({ pollId, votedOptionId }: Props) {
   return (
     <div className="card">
       <h2>{results.question}</h2>
-      <p className="total-votes">{results.totalVotes} {results.totalVotes === 1 ? 'vote' : 'votes'} total</p>
+      <p className="total-votes">
+        {results.totalVotes} {results.totalVotes === 1 ? 'vote' : 'votes'} total
+      </p>
       {results.is_closed && <p className="poll-closed-badge">Poll closed</p>}
       <ul className="results-list">
         {results.options.map((opt) => (
           <li key={opt.id} className={opt.id === votedOptionId ? 'voted' : ''}>
             <div className="result-label">
-              <span>{opt.text}{opt.id === votedOptionId ? ' ✓' : ''}</span>
+              <span>
+                {opt.text}
+                {opt.id === votedOptionId ? ' ✓' : ''}
+              </span>
               <span>{opt.percentage}%</span>
             </div>
             <div className="result-bar-track">
               <div className="result-bar-fill" style={{ width: `${opt.percentage}%` }} />
             </div>
-            <span className="result-count">{opt.voteCount} {opt.voteCount === 1 ? 'vote' : 'votes'}</span>
+            <span className="result-count">
+              {opt.voteCount} {opt.voteCount === 1 ? 'vote' : 'votes'}
+            </span>
           </li>
         ))}
       </ul>

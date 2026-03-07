@@ -21,8 +21,7 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  getPoll: (pollId: string) =>
-    apiFetch<Poll>(`/get-poll?pollId=${pollId}`),
+  getPoll: (pollId: string) => apiFetch<Poll>(`/get-poll?pollId=${pollId}`),
 
   castVote: (body: { pollId: string; optionId: string; voterFingerprint: string }) =>
     apiFetch<{ success: true }>('/cast-vote', {
@@ -30,8 +29,7 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  getResults: (pollId: string) =>
-    apiFetch<PollResults>(`/get-results?pollId=${pollId}`),
+  getResults: (pollId: string) => apiFetch<PollResults>(`/get-results?pollId=${pollId}`),
 
   listPolls: (params?: { page?: number; limit?: number }) => {
     const query = new URLSearchParams()
@@ -39,7 +37,7 @@ export const api = {
     if (params?.limit !== undefined) query.set('limit', String(params.limit))
     const qs = query.toString()
     return apiFetch<{ polls: PollSummary[]; total: number; page: number; limit: number }>(
-      `/list-polls${qs ? `?${qs}` : ''}`
+      `/list-polls${qs ? `?${qs}` : ''}`,
     )
   },
 }
