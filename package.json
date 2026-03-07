@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "node -e \"const fs=require('fs'),src='hooks/pre-commit',dst='.git/hooks/pre-commit';if(!fs.existsSync(dst)){fs.copyFileSync(src,dst);fs.chmodSync(dst,'755');console.log('Installed pre-commit hook.')}\"",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --noEmit",
