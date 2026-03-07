@@ -131,8 +131,9 @@ Items are written as acceptance criteria suitable for implementation and testing
 
 **Acceptance criteria:**
 
-- Standalone type-check step — tsc -b --no Emit as a pre-commit check. Right now type errors are only caught during npm run build, which isn't in the pre-commit flow.
-- Code formatter (Prettier) — Eliminates style noise in PRs. Pair with --check in CI and a format-on-save hook locally.
+- Standalone type-check step — `tsc -b --noEmit` as a pre-commit check. Type errors are currently only caught during `npm run build`, which isn't in the pre-commit flow.
+- Code formatter (Prettier) — eliminates style noise in PRs. Pair with `--check` in CI and a format-on-save hook locally.
+- Secret scanning — `gitleaks` (broad credential ruleset) and `detect-secrets` (high-entropy string detection) run on every staged commit before it is created.
 
 ### S1 — CORS hardening
 
