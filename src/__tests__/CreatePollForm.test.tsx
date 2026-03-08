@@ -47,7 +47,6 @@ describe('CreatePollForm', () => {
   it('hides "+ Add option" when 10 options are present', async () => {
     const user = userEvent.setup()
     render(<CreatePollForm />)
-    // Start with 2 options; click 8 more times to reach 10
     for (let i = 0; i < 8; i++) {
       await user.click(screen.getByRole('button', { name: /add option/i }))
     }
