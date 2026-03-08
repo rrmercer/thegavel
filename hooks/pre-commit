@@ -22,3 +22,4 @@ echo "--- pre-commit: format:check ---"
 npm run format:check
 
 echo "--- pre-commit: all checks passed ---"
+
