@@ -38,7 +38,9 @@ describe('create-poll', () => {
     })
 
     it('returns 400 for question over 500 characters', async () => {
-      const res = await handler(makeRequest('POST', BASE, { question: 'x'.repeat(501), options: ['A', 'B'] }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'x'.repeat(501), options: ['A', 'B'] }),
+      )
       expect(res.status).toBe(400)
     })
 
@@ -50,12 +52,16 @@ describe('create-poll', () => {
     })
 
     it('returns 400 for more than 4 options', async () => {
-      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B', 'C', 'D', 'E'] }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B', 'C', 'D', 'E'] }),
+      )
       expect(res.status).toBe(400)
     })
 
     it('returns 400 if an option exceeds 200 characters', async () => {
-      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'x'.repeat(201)] }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'x'.repeat(201)] }),
+      )
       expect(res.status).toBe(400)
     })
 
@@ -65,14 +71,18 @@ describe('create-poll', () => {
     })
 
     it('returns 400 if closes_at is not a string', async () => {
-      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: 12345 }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: 12345 }),
+      )
       expect(res.status).toBe(400)
       const body = await res.json()
       expect(body.error).toMatch(/closes_at/)
     })
 
     it('returns 400 if closes_at is not a parseable date', async () => {
-      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: 'not-a-date' }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: 'not-a-date' }),
+      )
       expect(res.status).toBe(400)
       const body = await res.json()
       expect(body.error).toMatch(/closes_at/)
@@ -80,7 +90,9 @@ describe('create-poll', () => {
 
     it('returns 400 if closes_at is in the past', async () => {
       const pastDate = new Date(Date.now() - 1000).toISOString()
-      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: pastDate }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at: pastDate }),
+      )
       expect(res.status).toBe(400)
       const body = await res.json()
       expect(body.error).toMatch(/future/)
@@ -91,9 +103,11 @@ describe('create-poll', () => {
     it('returns 201 with pollId on success', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: { id: 'new-poll-id' }, error: null })) // polls insert
-        .mockReturnValueOnce(mockChain({ error: null }))                               // options insert
+        .mockReturnValueOnce(mockChain({ error: null })) // options insert
 
-      const res = await handler(makeRequest('POST', BASE, { question: 'Lunch?', options: ['Pizza', 'Tacos'] }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Lunch?', options: ['Pizza', 'Tacos'] }),
+      )
       expect(res.status).toBe(201)
       const body = await res.json()
       expect(body.pollId).toBe('new-poll-id')
@@ -105,7 +119,9 @@ describe('create-poll', () => {
         .mockReturnValueOnce(mockChain({ error: null }))
 
       const closes_at = new Date(Date.now() + 3_600_000).toISOString()
-      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at }))
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'], closes_at }),
+      )
       expect(res.status).toBe(201)
     })
 
@@ -119,8 +135,8 @@ describe('create-poll', () => {
     it('returns 500 if options insert fails and cleans up the poll', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: { id: 'orphan-poll' }, error: null })) // polls insert
-        .mockReturnValueOnce(mockChain({ error: { message: 'DB error' } }))            // options insert
-        .mockReturnValueOnce(mockChain({ error: null }))                               // cleanup delete
+        .mockReturnValueOnce(mockChain({ error: { message: 'DB error' } })) // options insert
+        .mockReturnValueOnce(mockChain({ error: null })) // cleanup delete
 
       const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'] }))
       expect(res.status).toBe(500)

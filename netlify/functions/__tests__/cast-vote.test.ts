@@ -27,7 +27,9 @@ describe('cast-vote', () => {
 
   describe('input validation', () => {
     it('returns 400 when pollId is missing', async () => {
-      const res = await handler(makeRequest('POST', BASE, { optionId: 'x', voterFingerprint: 'fp' }))
+      const res = await handler(
+        makeRequest('POST', BASE, { optionId: 'x', voterFingerprint: 'fp' }),
+      )
       expect(res.status).toBe(400)
     })
 
@@ -54,8 +56,10 @@ describe('cast-vote', () => {
 
     it('returns 409 when the voter has already voted', async () => {
       mockFrom
-        .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: null } }, error: null })) // option+poll join
-        .mockReturnValueOnce(mockChain({ error: { code: '23505' } }))                                                   // votes insert
+        .mockReturnValueOnce(
+          mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: null } }, error: null }),
+        ) // option+poll join
+        .mockReturnValueOnce(mockChain({ error: { code: '23505' } })) // votes insert
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))
       expect(res.status).toBe(409)
@@ -65,7 +69,9 @@ describe('cast-vote', () => {
 
     it('returns 500 on unexpected DB error when inserting vote', async () => {
       mockFrom
-        .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: null } }, error: null }))
+        .mockReturnValueOnce(
+          mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: null } }, error: null }),
+        )
         .mockReturnValueOnce(mockChain({ error: { code: '500', message: 'DB error' } }))
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))
@@ -74,7 +80,9 @@ describe('cast-vote', () => {
 
     it('returns 200 with success on a valid vote', async () => {
       mockFrom
-        .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: null } }, error: null }))
+        .mockReturnValueOnce(
+          mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: null } }, error: null }),
+        )
         .mockReturnValueOnce(mockChain({ error: null }))
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))
@@ -86,7 +94,10 @@ describe('cast-vote', () => {
     it('returns 403 poll_closed when poll has expired', async () => {
       const pastDate = new Date(Date.now() - 1000).toISOString()
       mockFrom.mockReturnValueOnce(
-        mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: pastDate } }, error: null })
+        mockChain({
+          data: { id: VALID_BODY.optionId, polls: { closes_at: pastDate } },
+          error: null,
+        }),
       )
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))
@@ -98,7 +109,12 @@ describe('cast-vote', () => {
     it('returns 200 when poll closes_at is in the future', async () => {
       const futureDate = new Date(Date.now() + 3_600_000).toISOString()
       mockFrom
-        .mockReturnValueOnce(mockChain({ data: { id: VALID_BODY.optionId, polls: { closes_at: futureDate } }, error: null }))
+        .mockReturnValueOnce(
+          mockChain({
+            data: { id: VALID_BODY.optionId, polls: { closes_at: futureDate } },
+            error: null,
+          }),
+        )
         .mockReturnValueOnce(mockChain({ error: null }))
 
       const res = await handler(makeRequest('POST', BASE, VALID_BODY))

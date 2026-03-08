@@ -77,6 +77,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ### Production — Netlify Dashboard
 
 Site settings → Environment variables → Add:
+
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
@@ -88,16 +89,17 @@ Set scope to **Functions** only.
 
 All files in `netlify/functions/`. Netlify maps them to `/.netlify/functions/<name>`.
 
-| File | Method | Query/Body | Purpose |
-|---|---|---|---|
-| `get-poll.ts` | GET | `?pollId=<uuid>` | Fetch poll + options (build first — validates DB connection) |
-| `create-poll.ts` | POST | `{ question, options[] }` | Create poll + options atomically |
-| `cast-vote.ts` | POST | `{ pollId, optionId, voterFingerprint }` | Record vote; returns `already_voted` on duplicate |
-| `get-results.ts` | GET | `?pollId=<uuid>` | Vote counts + percentages per option |
+| File             | Method | Query/Body                               | Purpose                                                      |
+| ---------------- | ------ | ---------------------------------------- | ------------------------------------------------------------ |
+| `get-poll.ts`    | GET    | `?pollId=<uuid>`                         | Fetch poll + options (build first — validates DB connection) |
+| `create-poll.ts` | POST   | `{ question, options[] }`                | Create poll + options atomically                             |
+| `cast-vote.ts`   | POST   | `{ pollId, optionId, voterFingerprint }` | Record vote; returns `already_voted` on duplicate            |
+| `get-results.ts` | GET    | `?pollId=<uuid>`                         | Vote counts + percentages per option                         |
 
 Supabase client is initialised once in `netlify/functions/lib/supabase.ts` and imported by each function.
 
 **Test locally with:**
+
 ```bash
 netlify dev   # starts on port 8888; functions at /.netlify/functions/*
 ```
@@ -126,11 +128,11 @@ src/
 
 ### Routing (URL-based, no React Router)
 
-| URL | Condition | View |
-|---|---|---|
-| `/` | — | `CreatePollForm` |
-| `/?poll=<uuid>` | not yet voted | `PollView` |
-| `/?poll=<uuid>` | already voted | `ResultsView` |
+| URL             | Condition     | View             |
+| --------------- | ------------- | ---------------- |
+| `/`             | —             | `CreatePollForm` |
+| `/?poll=<uuid>` | not yet voted | `PollView`       |
+| `/?poll=<uuid>` | already voted | `ResultsView`    |
 
 After voting: stay on `/?poll=<uuid>`, swap to `ResultsView`.
 
@@ -166,9 +168,9 @@ const FUNCTIONS_BASE = '/.netlify/functions'
 
 ## Gotchas
 
-| # | Watch out for |
-|---|---|
-| 1 | **Never use `VITE_` prefix** on Supabase keys — they'd be bundled into the browser JS |
-| 2 | **Always use `netlify dev`** for local dev, not `vite dev` — functions won't load otherwise |
-| 3 | **Two tsconfigs on purpose** — root is Vite/ESM/browser; `netlify/functions/` is CommonJS/Node |
-| 4 | **After adding new files** — re-run `python3 -m detect_secrets scan > .secrets.baseline` before committing if the hook blocks you |
+| #   | Watch out for                                                                                                                     |
+| --- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Never use `VITE_` prefix** on Supabase keys — they'd be bundled into the browser JS                                             |
+| 2   | **Always use `netlify dev`** for local dev, not `vite dev` — functions won't load otherwise                                       |
+| 3   | **Two tsconfigs on purpose** — root is Vite/ESM/browser; `netlify/functions/` is CommonJS/Node                                    |
+| 4   | **After adding new files** — re-run `python3 -m detect_secrets scan > .secrets.baseline` before committing if the hook blocks you |

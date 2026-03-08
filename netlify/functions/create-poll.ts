@@ -12,12 +12,16 @@ export default async (req: Request) => {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { question, options, closes_at } = body as { question: unknown; options: unknown; closes_at: unknown }
+  const { question, options, closes_at } = body as {
+    question: unknown
+    options: unknown
+    closes_at: unknown
+  }
 
   if (typeof question !== 'string' || question.trim().length === 0 || question.length > 500) {
     return Response.json(
       { error: 'question must be a non-empty string up to 500 characters' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -29,7 +33,7 @@ export default async (req: Request) => {
   ) {
     return Response.json(
       { error: 'options must be an array of 2–4 non-empty strings up to 200 characters each' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -37,14 +41,11 @@ export default async (req: Request) => {
     if (typeof closes_at !== 'string' || closes_at.length > 100 || isNaN(Date.parse(closes_at))) {
       return Response.json(
         { error: 'closes_at must be a valid ISO 8601 datetime string' },
-        { status: 400 }
+        { status: 400 },
       )
     }
     if (new Date(closes_at) <= new Date()) {
-      return Response.json(
-        { error: 'closes_at must be a future datetime' },
-        { status: 400 }
-      )
+      return Response.json({ error: 'closes_at must be a future datetime' }, { status: 400 })
     }
   }
 

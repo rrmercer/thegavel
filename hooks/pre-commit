@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+echo "--- pre-commit: gitleaks ---"
+if command -v gitleaks &>/dev/null; then
+  gitleaks protect --staged -v
+else
+  echo "WARNING: gitleaks not found — skipping. Install with: brew install gitleaks"
+fi
+
+echo "--- pre-commit: detect-secrets ---"
+if python3 -m detect_secrets --version &>/dev/null 2>&1; then
+  python3 -m detect_secrets scan --baseline .secrets.baseline
+else
+  echo "WARNING: detect-secrets not found — skipping. Install with: pip3 install detect-secrets"
+fi
+
+echo "--- pre-commit: typecheck ---"
+npm run typecheck
+
+echo "--- pre-commit: format:check ---"
+npm run format:check
+
+echo "--- pre-commit: all checks passed ---"
+
