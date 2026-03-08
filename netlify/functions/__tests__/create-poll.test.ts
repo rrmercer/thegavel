@@ -51,9 +51,12 @@ describe('create-poll', () => {
       expect(body.error).toMatch(/options/)
     })
 
-    it('returns 400 for more than 4 options', async () => {
+    it('returns 400 for more than 10 options', async () => {
       const res = await handler(
-        makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B', 'C', 'D', 'E'] }),
+        makeRequest('POST', BASE, {
+          question: 'Q?',
+          options: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
+        }),
       )
       expect(res.status).toBe(400)
     })
@@ -111,6 +114,22 @@ describe('create-poll', () => {
       expect(res.status).toBe(201)
       const body = await res.json()
       expect(body.pollId).toBe('new-poll-id')
+    })
+
+    it('returns 201 with exactly 10 options (boundary happy path)', async () => {
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: { id: 'ten-option-poll' }, error: null }))
+        .mockReturnValueOnce(mockChain({ error: null }))
+
+      const res = await handler(
+        makeRequest('POST', BASE, {
+          question: 'Pick one?',
+          options: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
+        }),
+      )
+      expect(res.status).toBe(201)
+      const body = await res.json()
+      expect(body.pollId).toBe('ten-option-poll')
     })
 
     it('returns 201 when a valid closes_at is provided', async () => {

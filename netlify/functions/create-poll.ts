@@ -1,5 +1,7 @@
 import { supabase } from './lib/supabase'
 
+const MAX_OPTIONS = 10
+
 export default async (req: Request) => {
   if (req.method !== 'POST') {
     return Response.json({ error: 'Method not allowed' }, { status: 405 })
@@ -28,11 +30,11 @@ export default async (req: Request) => {
   if (
     !Array.isArray(options) ||
     options.length < 2 ||
-    options.length > 4 ||
+    options.length > MAX_OPTIONS ||
     options.some((o) => typeof o !== 'string' || o.trim().length === 0 || o.length > 200)
   ) {
     return Response.json(
-      { error: 'options must be an array of 2–4 non-empty strings up to 200 characters each' },
+      { error: 'options must be an array of 2–10 non-empty strings up to 200 characters each' },
       { status: 400 },
     )
   }
