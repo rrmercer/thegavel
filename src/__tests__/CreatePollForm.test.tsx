@@ -44,11 +44,14 @@ describe('CreatePollForm', () => {
     expect(screen.getAllByPlaceholderText(/option/i)).toHaveLength(2)
   })
 
-  it('hides "+ Add option" when 4 options are present', async () => {
+  it('hides "+ Add option" when 10 options are present', async () => {
     const user = userEvent.setup()
     render(<CreatePollForm />)
-    await user.click(screen.getByRole('button', { name: /add option/i }))
-    await user.click(screen.getByRole('button', { name: /add option/i }))
+    // Start with 2 options; click 8 more times to reach 10
+    for (let i = 0; i < 8; i++) {
+      await user.click(screen.getByRole('button', { name: /add option/i }))
+    }
+    expect(screen.getAllByPlaceholderText(/option/i)).toHaveLength(10)
     expect(screen.queryByRole('button', { name: /add option/i })).not.toBeInTheDocument()
   })
 

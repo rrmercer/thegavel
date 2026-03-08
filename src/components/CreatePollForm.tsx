@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { api } from '../api/client'
 
 const MIN_OPTIONS = 2
-const MAX_OPTIONS = 4
+const MAX_OPTIONS = 10
 
 export function CreatePollForm() {
   const [question, setQuestion] = useState('')
