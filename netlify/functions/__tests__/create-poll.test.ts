@@ -116,6 +116,47 @@ describe('create-poll', () => {
       expect(body.pollId).toBe('new-poll-id')
     })
 
+    it('returns ownerToken as a valid UUID in the response', async () => {
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: { id: 'token-poll-id' }, error: null }))
+        .mockReturnValueOnce(mockChain({ error: null }))
+
+      const res = await handler(
+        makeRequest('POST', BASE, { question: 'Token test?', options: ['Yes', 'No'] }),
+      )
+      expect(res.status).toBe(201)
+      const body = await res.json()
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      expect(body.ownerToken).toMatch(uuidRegex)
+    })
+
+    it('returns a different ownerToken on each call', async () => {
+      mockFrom
+        .mockReturnValueOnce(mockChain({ data: { id: 'poll-a' }, error: null }))
+        .mockReturnValueOnce(mockChain({ error: null }))
+        .mockReturnValueOnce(mockChain({ data: { id: 'poll-b' }, error: null }))
+        .mockReturnValueOnce(mockChain({ error: null }))
+
+      const res1 = await handler(
+        makeRequest('POST', BASE, { question: 'Q1?', options: ['A', 'B'] }),
+      )
+      const res2 = await handler(
+        makeRequest('POST', BASE, { question: 'Q2?', options: ['A', 'B'] }),
+      )
+      const body1 = await res1.json()
+      const body2 = await res2.json()
+      expect(body1.ownerToken).not.toBe(body2.ownerToken)
+    })
+
+    it('does not include ownerToken in error responses', async () => {
+      mockFrom.mockReturnValueOnce(mockChain({ data: null, error: { message: 'DB error' } }))
+
+      const res = await handler(makeRequest('POST', BASE, { question: 'Q?', options: ['A', 'B'] }))
+      expect(res.status).toBe(500)
+      const body = await res.json()
+      expect(body.ownerToken).toBeUndefined()
+    })
+
     it('returns 201 with exactly 10 options (boundary happy path)', async () => {
       mockFrom
         .mockReturnValueOnce(mockChain({ data: { id: 'ten-option-poll' }, error: null }))
