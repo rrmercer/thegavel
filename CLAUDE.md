@@ -15,7 +15,7 @@ npm run lint         # eslint on all .ts/.tsx files
 
 ## Architecture
 
-**The Gavel** is an anonymous voting app. Users create polls (a question + 2–4 text options); others vote once per device; results are shown after voting.
+**The Gavel** is an anonymous voting app. Users create polls (a question + 2–10 text options); others vote once per device; results are shown after voting.
 
 ### Request flow
 
@@ -27,7 +27,7 @@ Browser → /.netlify/functions/<name>  →  netlify/functions/<name>.ts
                                     Supabase PostgreSQL (service role — bypasses RLS)
 ```
 
-The frontend never talks to Supabase directly. All DB access goes through the four Netlify Functions using the service role key. RLS is enabled on all tables with no public policies, so direct browser access is blocked at the DB level.
+The frontend never talks to Supabase directly. All DB access goes through the five Netlify Functions using the service role key. RLS is enabled on all tables with no public policies, so direct browser access is blocked at the DB level.
 
 ### Key directories
 
@@ -53,6 +53,7 @@ Each browser generates a UUID on first visit stored in `localStorage` (`voter_fi
 No React Router. `App.tsx` reads `window.location.search`:
 
 - `/` → `CreatePollForm`
+- `/?view=list` → `ListPollsView`
 - `/?poll=<uuid>` + not voted → `PollView`
 - `/?poll=<uuid>` + already voted → `ResultsView`
 
