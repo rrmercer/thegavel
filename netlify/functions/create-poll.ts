@@ -1,3 +1,4 @@
+import { randomUUID, createHash } from 'crypto'
 import { supabase } from './lib/supabase'
 
 const MAX_OPTIONS = 10
@@ -51,9 +52,16 @@ export default async (req: Request) => {
     }
   }
 
+  const ownerToken = randomUUID()
+  const ownerTokenHash = createHash('sha256').update(ownerToken).digest('hex')
+
   const { data: poll, error: pollError } = await supabase
     .from('polls')
-    .insert({ question: question.trim(), closes_at: closes_at ?? null })
+    .insert({
+      question: question.trim(),
+      closes_at: closes_at ?? null,
+      owner_token_hash: ownerTokenHash,
+    })
     .select('id')
     .single()
 
@@ -75,5 +83,5 @@ export default async (req: Request) => {
     return Response.json({ error: 'Failed to create options' }, { status: 500 })
   }
 
-  return Response.json({ pollId: poll.id }, { status: 201 })
+  return Response.json({ pollId: poll.id, ownerToken }, { status: 201 })
 }

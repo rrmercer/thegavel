@@ -10,7 +10,9 @@ export function CreatePollForm() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [createdLink, setCreatedLink] = useState<string | null>(null)
+  const [ownerToken, setOwnerToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copiedToken, setCopiedToken] = useState(false)
 
   function updateOption(index: number, value: string) {
     setOptions((prev) => prev.map((o, i) => (i === index ? value : o)))
@@ -35,12 +37,13 @@ export function CreatePollForm() {
     setError(null)
     setSubmitting(true)
     try {
-      const { pollId } = await api.createPoll({
+      const { pollId, ownerToken: token } = await api.createPoll({
         question: trimmedQuestion,
         options: trimmedOptions,
       })
       const link = `${window.location.origin}/?poll=${pollId}`
       setCreatedLink(link)
+      setOwnerToken(token)
       window.history.pushState({}, '', `/?poll=${pollId}`)
     } catch {
       setError('Failed to create poll. Please try again.')
@@ -55,6 +58,13 @@ export function CreatePollForm() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  async function copyToken() {
+    if (!ownerToken) return
+    await navigator.clipboard.writeText(ownerToken)
+    setCopiedToken(true)
+    setTimeout(() => setCopiedToken(false), 2000)
+  }
+
   if (createdLink) {
     return (
       <div className="card">
@@ -64,6 +74,18 @@ export function CreatePollForm() {
           <code className="poll-link">{createdLink}</code>
           <button onClick={copyLink}>{copied ? 'Copied!' : 'Copy'}</button>
         </div>
+        {ownerToken && (
+          <div className="owner-token-section">
+            <h3>Owner token</h3>
+            <p className="owner-token-warning">
+              Save this token — it won't be shown again. You'll need it to delete this poll.
+            </p>
+            <div className="link-row">
+              <code className="poll-link">{ownerToken}</code>
+              <button onClick={copyToken}>{copiedToken ? 'Copied!' : 'Copy'}</button>
+            </div>
+          </div>
+        )}
         <a href="/?view=list">View all polls</a>
       </div>
     )
