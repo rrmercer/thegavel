@@ -4,6 +4,7 @@ import { CreatePollForm } from './components/CreatePollForm'
 import { PollView } from './components/PollView'
 import { ResultsView } from './components/ResultsView'
 import { ListPollsView } from './components/ListPollsView'
+import { DashboardView } from './components/DashboardView'
 
 function getParams(): { pollId: string | null; view: string | null } {
   const params = new URLSearchParams(window.location.search)
@@ -16,6 +17,10 @@ export default function App() {
 
   if (view === 'list') {
     return <ListPollsView />
+  }
+
+  if (view === 'dashboard') {
+    return <DashboardView />
   }
 
   if (!pollId) {
